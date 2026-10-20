@@ -122,14 +122,13 @@ pinned.
 
 ### Fixed
 
-- CORS now covers the two surfaces the documentation already classified as
-  authenticated. `GET /usage` carries `onRequest: cors('authenticated')`, so an
-  allowlisted origin gets a reflected `Access-Control-Allow-Origin` (a denied
-  origin still gets none), and `OPTIONS` routes exist for `GET /usage`,
-  `GET /settlements/:idempotencyKey` and `GET /settlements/:idempotencyKey/events`,
-  advertising `GET, OPTIONS`. Previously a browser preflighting any of the three
-  fell through to the not-found handler and received `404 route_not_found`
-  instead of a CORS verdict. Pinned by HTTP-level tests in `test/cors.test.js`.
+- `npm run env:check` now fails on the other direction of drift: a variable
+  documented in `.env.example` that no code in `src/` reads. Reads that are
+  computed (`env[pluralKey]`, `env[key]`, `env[k]`, `process.env[name]`) and
+  names that are compose-only are excused by a per-name allowlist in
+  `scripts/check-env-doc.mjs`, each citing the line that reads it — and an
+  allowlist entry fails the build once the code it excuses is gone, so the
+  list cannot quietly become the blind spot it was written to close (#504).
 - Signer secrets are validated with a checksum-aware StrKey decode (#498) in
   `resolveConfig` and `KeyManager`, so a truncated, wrongly-prefixed or
   bad-checksum secret is refused at boot — or when a remote key source is read —
